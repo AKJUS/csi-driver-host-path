@@ -925,6 +925,10 @@ func (hp *hostPath) ControllerListVolumeHealth(ctx context.Context, req *csi.Con
 	}
 
 	total := int64(len(volIDs))
+	if req.GetStartingToken() != "" && startIdx > total {
+		return nil, status.Error(codes.Aborted, "startingToken is invalid")
+	}
+
 	maxLength := int64(req.GetMaxEntries())
 	if maxLength > total || maxLength <= 0 {
 		maxLength = total
@@ -938,9 +942,10 @@ func (hp *hostPath) ControllerListVolumeHealth(ctx context.Context, req *csi.Con
 	entries := make([]*csi.VolumeHealth, 0, endIdx-(startIdx-1))
 	for i := startIdx - 1; i < endIdx; i++ {
 		volID := volIDs[i]
+		marker := markers[volID].EffectiveForController()
 		entries = append(entries, &csi.VolumeHealth{
 			VolumeId:       volID,
-			HealthStatuses: hp.getVolumeHealthEntries(volID, ScopeController),
+			HealthStatuses: []*csi.VolumeHealth_VolumeHealthEntry{toVolumeHealthEntry(marker)},
 		})
 	}
 

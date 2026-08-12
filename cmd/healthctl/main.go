@@ -144,7 +144,7 @@ func runMarkVolumeUnhealthy(args []string) int {
 	fs := flag.NewFlagSet("mark-volume-unhealthy", flag.ExitOnError)
 	scope := fs.String("scope", "both", "which side reports unhealthy: both, controller, or node")
 	status := fs.String("status", "DEGRADED", "volume health status (one of: DEGRADED, INACCESSIBLE, DATA_LOSS)")
-	reason := fs.String("reason", "manually-marked", "short CamelCase reason for the condition")
+	reason := fs.String("reason", "ManuallDegraded", "short CamelCase reason for the condition")
 	message := fs.String("message", "", "human-readable description (defaults to a templated string)")
 	fs.Usage = func() {
 		fmt.Fprintln(os.Stderr, "Usage: healthctl -statedir <dir> mark-volume-unhealthy <volID> [flags]")
@@ -223,7 +223,7 @@ func runMarkVolumeHealthy(args []string) int {
 func runMarkStorageUnhealthy(args []string) int {
 	fs := flag.NewFlagSet("mark-storage-unhealthy", flag.ExitOnError)
 	status := fs.String("status", "STORAGE_DEGRADED", "storage health status (one of: STORAGE_UNREACHABLE, STORAGE_DEGRADED)")
-	reason := fs.String("reason", "manually-marked", "short CamelCase reason for the condition")
+	reason := fs.String("reason", "ManuallDegraded", "short CamelCase reason for the condition")
 	message := fs.String("message", "", "human-readable description (defaults to a templated string)")
 	fs.Usage = func() {
 		fmt.Fprintln(os.Stderr, "Usage: healthctl -statedir <dir> mark-storage-unhealthy [flags]")

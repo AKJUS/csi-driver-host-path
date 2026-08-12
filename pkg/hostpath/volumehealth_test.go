@@ -234,6 +234,28 @@ func TestControllerListVolumeHealth_Pagination(t *testing.T) {
 	assert.Empty(t, resp.GetNextToken(), "no more pages")
 }
 
+func TestControllerListVolumeHealth_StartingTokenBeyondTotal(t *testing.T) {
+	t.Run("non-empty result", func(t *testing.T) {
+		hp := newTestHostPath(t)
+		for _, id := range []string{"v1", "v2"} {
+			mustCreateVolume(t, hp, id)
+			require.NoError(t, WriteVolumeHealthMarker(hp.config.StateDir, id, ScopeBoth, VolumeHealthMarker{Status: "DEGRADED"}))
+		}
+
+		_, err := hp.ControllerListVolumeHealth(context.TODO(), &csi.ControllerListVolumeHealthRequest{StartingToken: "3"})
+		require.Error(t, err)
+		assert.Equal(t, codes.Aborted, status.Code(err))
+	})
+
+	t.Run("empty result", func(t *testing.T) {
+		hp := newTestHostPath(t)
+
+		_, err := hp.ControllerListVolumeHealth(context.TODO(), &csi.ControllerListVolumeHealthRequest{StartingToken: "1"})
+		require.Error(t, err)
+		assert.Equal(t, codes.Aborted, status.Code(err))
+	})
+}
+
 func TestDeleteVolumeClearsHealthMarker(t *testing.T) {
 	hp := newTestHostPath(t)
 	mustCreateVolume(t, hp, "vol-del")

@@ -371,9 +371,6 @@ func validStorageHealthStatusNames() []string {
 	return names
 }
 
-// writeJSONAtomic marshals the value to JSON and writes it to path via a
-// temp file + rename so that readers never observe a partially-written
-// marker.
 // getVolumeHealthEntries returns the CSI health entries for a volume based on
 // its on-disk marker for the given scope. An empty slice (nil) means no
 // adverse condition is known (healthy). Errors reading the marker are treated
